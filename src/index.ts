@@ -61,7 +61,11 @@ export class Bank implements BankType{
     }
 
     display(account: AccountType): AccountType {
-        return undefined;
+        if (this.accounts.find(accountSearch => accountSearch.id === account.id)) {
+            console.log(this.accounts.find(accountSearch => accountSearch.id === account.id).balance)
+            return this.accounts.find(accountSearch => accountSearch.id === account.id);
+        }
+        throw new Error("Account does not exist!")
     }
 
     withdraw(account: AccountType, amount: number): AccountType {

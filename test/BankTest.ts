@@ -128,7 +128,7 @@ catch (e){
  * Beginning of Withdraw User Story #3;
  */
 
-// This test assures that a valid input works for a deposit
+// This test assures that a valid input works for a wtihdraw
 try{
     const acc1 = bank.withdraw(accounts[0], 10);
     if(acc1.balance === 3448){
@@ -178,4 +178,25 @@ catch (e){
 }
 
 
+/**
+ * Beginning of Check Balance User Story #4;
+ */
+
+// This test assures that a valid account number shows the balance
+try {
+    const acc1 = bank.display(accounts[0]);
+    console.log("User Story 4 Scenario 1 passed")
+}
+catch(e){
+    console.log("User Story 4 Scenario 1 failed")
+}
+
+// This test assures that an invalid account number does not show the balance
+try {
+    const acc1 = bank.display({id: 1234356789875643, balance: 0});
+    console.log("User Story 4 Scenario 2 passed")
+}
+catch(e){
+    console.log("User Story 4 Scenario 2 failed")
+}
 process.exit(0);
