@@ -1,87 +1,145 @@
-import * as BankAccountManager from "./BankAccountManager";
+import {Bank} from '../src/Bank';
 import * as readline from "node:readline";
-import {BankType} from './types'
 import {AccountType} from "./types";
 
+class Main {
 
-/**
- * This bank class implements The BankType interface
- * and stores the account and usernames
- * and provides allows to create a new account.
- */
-export class Bank implements BankType{
+    private Bank: Bank = new Bank([], []);
+    private current: AccountType | undefined;
 
+    private read = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
 
-    private accounts: AccountType[] = [];
-    private usernames: string[] = [];
+    constructor() {
+    }
+
+    async run() {
+        console.log("Banking App");
+        await this.parseCommand(await this.promptCommand());
+        this.read.close();
+    }
 
     /**
-     *
-     * @param accounts - lists
-     * @param usernames
+     * Private function that prompts the user for commands.
+     * @private
      */
-    constructor(accounts: AccountType[], usernames: string[]) {
-        this.accounts = accounts;
-        this.usernames = usernames;
+    private async promptCommand(): Promise<string> {
+        return new Promise(command => {
+            this.read.question("Enter command: ", command);
+        });
     }
 
-    createAccount(username: string, age: number, accountNumber: number): AccountType {
-        if(age < 18){
-            throw new Error("Age under 18!")
-        }
-        if(this.usernames.includes(username)){
-            throw new Error("Username already exists!")
-        }
-        if(this.accounts.find(account => account.id === accountNumber)){
-            throw new Error("Account already exists!")
-        }
-        if(accountNumber.toString().length != 10){
-            throw new Error("Improper account number length")
-        }
+    private async parseCommand(command: string): Promise<void> {
 
-        const newAccount: AccountType = {
-            id: accountNumber,
-            balance: 0
-        }
-
-        this.accounts.push(newAccount)
-
-        return newAccount;
-    }
-
-    deposit(account: AccountType, amount: number): AccountType {
-        if(this.accounts.find(accountSearch => accountSearch.id === account.id)){
-            if(amount > 0){
-                this.accounts.find(accountSearch => accountSearch.id === account.id).balance += amount
-                return this.accounts.find(accountSearch => accountSearch.id === account.id);
+        switch (command.toLowerCase()) {
+            case "deposit": {
+                if (this.current) {
+                    this.Bank.deposit(this.current, await this.getAmount());
+                } else {
+                    console.log("No account is logged in.");
+                }
+                break;
             }
-            throw new Error("Invalid deposit amount!")
-        }
-        throw new Error("Account does not exist!")
-    }
-
-    display(account: AccountType): AccountType {
-        if (this.accounts.find(accountSearch => accountSearch.id === account.id)) {
-            console.log(this.accounts.find(accountSearch => accountSearch.id === account.id).balance)
-            return this.accounts.find(accountSearch => accountSearch.id === account.id);
-        }
-        throw new Error("Account does not exist!")
-    }
-
-    withdraw(account: AccountType, amount: number): AccountType {
-        if(this.accounts.find(accountSearch => accountSearch.id === account.id)){
-            if(amount <= this.accounts.find(accountSearch => accountSearch.id === account.id).balance
-            && amount > 0){
-                this.accounts.find(accountSearch => accountSearch.id === account.id).balance -= amount
-                return this.accounts.find(accountSearch => accountSearch.id === account.id);
+            case "display": {
+                if (this.current) {
+                    console.log("Current Account is: ", this.current.id);
+                    this.Bank.display(this.current);
+                } else {
+                    console.log("No account is logged in.");
+                }
+                break;
             }
-            throw new Error("Invalid withdraw amount!")
+            case "withdraw": {
+                if (this.current) {
+                    this.Bank.withdraw(this.current, await this.getAmount());
+                } else {
+                    console.log("No account is logged in.");
+                }
+                break;
+            }
+            case "create": {
+                let username = await this.getUsername();
+                let age = await this.getAge();
+                let accountNumber = await this.getAccountNumber();
+                this.current = this.Bank.createAccount(username, age, accountNumber);
+                break;
+            }
+            case "login": {
+                let username = await this.getUsername();
+                let accountNumber = await this.getAccountNumber();
+                this.current = this.Bank.login(username, accountNumber);
+                break;
+            }
+            case "logout": {
+                this.current = undefined;
+                console.log("Logged out successfully.");
+                break;
+            }
+            case "exit": {
+                process.exit(0);
+            }
+            default: {
+                console.log("Unknown command.");
+            }
+
+
         }
-        throw new Error("Account does not exist!")
+        await this.parseCommand(await this.promptCommand());
+
     }
 
+    private async getAccountNumber(): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.read.question("Enter account number: ", (account: string) => {
+                const parsedAccountNumber = parseInt(account);
+                if (isNaN(parsedAccountNumber)) {
+                    reject(new Error("Invalid account number"));
+                } else {
+                    resolve(parsedAccountNumber);
+                }
+            });
+        });
+    }
 
+    private async getAge(): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.read.question("Enter age: ", (age: string) => {
+                const parsedAge = parseInt(age);
+                if (isNaN(parsedAge)) {
+                    reject(new Error("Invalid age"));
+                } else {
+                    resolve(parsedAge);
+                }
+            });
+        });
+    }
 
+    private async getUsername(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            this.read.question("Enter username: ", (username: string) => {
+                if (username.trim() === "") {
+                    reject(new Error("Username cannot be empty"));
+                } else {
+                    resolve(username);
+                }
+            });
+        });
+    }
 
-
+    private async getAmount(): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.read.question("Enter amount: ", (amount: string) => {
+                const parsedAmount = parseFloat(amount);
+                if (isNaN(parsedAmount) || parsedAmount <= 0) {
+                    reject(new Error("Invalid amount. Please enter a positive number."));
+                } else {
+                    resolve(parsedAmount);
+                }
+            });
+        });
+    }
 }
+
+new Main().run();
