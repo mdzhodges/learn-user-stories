@@ -65,14 +65,16 @@ export class Bank implements BankType{
     }
 
     withdraw(account: AccountType, amount: number): AccountType {
-        return undefined;
+        if(this.accounts.find(accountSearch => accountSearch.id === account.id)){
+            if(amount <= this.accounts.find(accountSearch => accountSearch.id === account.id).balance
+            && amount > 0){
+                this.accounts.find(accountSearch => accountSearch.id === account.id).balance -= amount
+                return this.accounts.find(accountSearch => accountSearch.id === account.id);
+            }
+            throw new Error("Invalid withdraw amount!")
+        }
+        throw new Error("Account does not exist!")
     }
-
-    protected rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
 
 
 

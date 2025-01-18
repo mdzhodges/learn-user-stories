@@ -124,6 +124,58 @@ catch (e){
     console.log("User Story 2 Scenario 4 passed")
 }
 
+/**
+ * Beginning of Withdraw User Story #3;
+ */
+
+// This test assures that a valid input works for a deposit
+try{
+    const acc1 = bank.withdraw(accounts[0], 10);
+    if(acc1.balance === 3448){
+        console.log("User Story 3 Scenario 1 passed")
+    } else{
+        console.log("User Story 3 Scenario 1 failed")
+
+    }
+}
+catch (e){
+    console.log("User Story 3 Scenario 1 failed")
+}
+
+// This test assure that an invalid account number fails
+try{
+    const acc1 = bank.withdraw({id: 1234356789875643, balance: 0}, 10);
+    console.log("User Story 3 Scenario 2 failed")
+} catch(e){
+    console.log("User Story 3 Scenario 2 passed")
+}
+
+// These tests assure that an invalid withdraw amount fails
+try{
+    const acc1 = bank.withdraw(accounts[0], -10);
+    console.log("User Story 3 Scenario 3 failed")
+}
+catch (e){
+    console.log("User Story 3 Scenario 3 passed")
+}
+
+// These tests assure that an invalid withdraw amount fails
+try{
+    const acc1 = bank.withdraw(accounts[0], 100000000000);
+    console.log("User Story 3 Scenario 3 failed")
+}
+catch (e){
+    console.log("User Story 3 Scenario 3 passed")
+}
+
+// This test assures that a two invalid inputs fails
+try{
+    const acc1 = bank.withdraw({id: 1234356789875643, balance: 0}, -10);
+    console.log("User Story 3 Scenario 4 failed")
+}
+catch (e){
+    console.log("User Story 3 Scenario 4 passed")
+}
 
 
 process.exit(0);
