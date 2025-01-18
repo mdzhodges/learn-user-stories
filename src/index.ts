@@ -50,7 +50,14 @@ export class Bank implements BankType{
     }
 
     deposit(account: AccountType, amount: number): AccountType {
-        return undefined;
+        if(this.accounts.find(accountSearch => accountSearch.id === account.id)){
+            if(amount > 0){
+                this.accounts.find(accountSearch => accountSearch.id === account.id).balance += amount
+                return this.accounts.find(accountSearch => accountSearch.id === account.id);
+            }
+            throw new Error("Invalid deposit amount!")
+        }
+        throw new Error("Account does not exist!")
     }
 
     display(account: AccountType): AccountType {
